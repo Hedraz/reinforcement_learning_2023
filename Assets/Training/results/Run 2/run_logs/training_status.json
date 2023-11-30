@@ -1,0 +1,29 @@
+{
+    "MyAgent": {
+        "checkpoints": [
+            {
+                "steps": 100284,
+                "file_path": "results\\Run 2\\MyAgent\\MyAgent-100284.onnx",
+                "reward": 0.0,
+                "creation_time": 1701350699.551579,
+                "auxillary_file_paths": [
+                    "results\\Run 2\\MyAgent\\MyAgent-100284.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 100284,
+            "file_path": "results\\Run 2\\MyAgent.onnx",
+            "reward": 0.0,
+            "creation_time": 1701350699.551579,
+            "auxillary_file_paths": [
+                "results\\Run 2\\MyAgent\\MyAgent-100284.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.28.0",
+        "torch_version": "1.7.1+cu110"
+    }
+}

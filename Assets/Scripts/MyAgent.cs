@@ -8,62 +8,62 @@ using Unity.MLAgents.Sensors;
 
 public class MyAgent : Agent
 {
-    public float speed = 7.0f;
+    public float speed = 5.0f;
     [SerializeField] private Transform targetTransform;
+    public Transform[] spawnPoints;
+    public Transform Vent, Impostor;
+    private Quaternion originalRotation;
+    public float rotationSpeed = 45.0f;
 
     public override void OnEpisodeBegin()
     {
-        transform.localPosition = Vector3.zero;
+        int agentIndex;
+        int ventIndex;
 
-        float xPos = Random.Range(-22, 22);
-        float zPos = Random.Range(-22, 22);
+        do
+        {
+            agentIndex = Random.Range(0, spawnPoints.Length);
+            ventIndex = Random.Range(0, spawnPoints.Length);
+        } while (agentIndex == ventIndex);
 
-        targetTransform.localPosition = new Vector3(xPos, 0f, zPos);
+        Transform agentSpawnPoint = spawnPoints[agentIndex];
+        Transform ventSpawnPoint = spawnPoints[ventIndex];
+
+        Impostor.localPosition = agentSpawnPoint.localPosition;
+        Vent.localPosition = ventSpawnPoint.localPosition;
     }
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(transform.localPosition);
-        sensor.AddObservation(targetTransform.localPosition);
+        sensor.AddObservation(transform.localPosition- targetTransform.localPosition);
+        
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
-        var actionTaken = actions.ContinuousActions;
+        float moveX = actions.ContinuousActions[0];
+        float moveZ = actions.ContinuousActions[1];
+        originalRotation = transform.rotation;
 
-        float actionSpeed = (actionTaken[0] + 1) / 2;
-        float actionSteering = actionTaken[1];
-
-        transform.Translate(actionSpeed * Vector3.forward * speed * Time.fixedDeltaTime);
-        transform.rotation = Quaternion.Euler(new Vector3(0, actionSteering * 180, 0));
-
-        AddReward(-0.01f);
+        transform.localPosition += new Vector3(moveX, 0, moveZ) * speed * Time.fixedDeltaTime;
+        transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, Time.deltaTime * rotationSpeed);
     }
 
 public override void Heuristic(in ActionBuffers actionsOut) {
         ActionSegment<float> actions = actionsOut.ContinuousActions;
 
-        actions[0] = -1;
-        actions[1] = 0;
-
-        if (Input.GetKey("w"))
-            actions[0] = 1;
-        
-        if (Input.GetKey("d"))
-            actions[1] = +0.5f;
-
-        if (Input.GetKey("a"))
-            actions[1] = -0.5f;
+        actions[0] = Input.GetAxisRaw("Horizontal");
+        actions[1] = Input.GetAxisRaw("Vertical");
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.tag == "Wall")
         {
-            AddReward(-1);
+            AddReward(-100);
             EndEpisode();
         }
         else if (collision.collider.tag == "Vent")
         {
-            AddReward(1);
+            AddReward(+100);
             EndEpisode();
         }
     }

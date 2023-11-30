@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - Vent
+  - Impostor
   layers:
   - Default
   - TransparentFX
